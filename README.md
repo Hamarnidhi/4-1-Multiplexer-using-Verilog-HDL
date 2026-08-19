@@ -32,26 +32,37 @@ Vivado 2023.1
 # Verilog Code
 4:1 MUX Gate-Level Implementation
 ```
-// Gate Level Modelling - Skeleton
+// Gate Level Modelling - 4:1 Multiplexer
 module mux4_gate (
     input  wire I0, I1, I2, I3,
     input  wire S0, S1,
     output wire Y
 );
+
     // Declare internal wires
+    wire S0_bar, S1_bar;
+    wire W0, W1, W2, W3;
 
-    // Write NOT gates
+    // NOT gates
+    not (S0_bar, S0);
+    not (S1_bar, S1);
 
-    // Write AND gates
+    // AND gates
+    and (W0, I0, S1_bar, S0_bar);  // S1S0 = 00
+    and (W1, I1, S1_bar, S0);      // S1S0 = 01
+    and (W2, I2, S1, S0_bar);      // S1S0 = 10
+    and (W3, I3, S1, S0);          // S1S0 = 11
 
-    // Write OR gate
+    // OR gate
+    or (Y, W0, W1, W2, W3);
 
 endmodule
 ```
 4:1 MUX Gate-Level Implementation- Testbench
 ```
-// Testbench Skeleton
+// Testbench for 4:1 Multiplexer
 `timescale 1ns/1ps
+
 module tb_mux4_gate;
 
     // Declare testbench signals
@@ -68,17 +79,69 @@ module tb_mux4_gate;
 
     initial begin
         // Initialize inputs
+        I0 = 0;
+        I1 = 0;
+        I2 = 0;
+        I3 = 0;
+        S0 = 0;
+        S1 = 0;
 
-        // Apply test cases
+        // Apply test case: S1S0 = 00 -> Y = I0
+        I0 = 1; I1 = 0; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 0;
+        #10;
+
+        // Apply test case: S1S0 = 01 -> Y = I1
+        I0 = 0; I1 = 1; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 1;
+        #10;
+
+        // Apply test case: S1S0 = 10 -> Y = I2
+        I0 = 0; I1 = 0; I2 = 1; I3 = 0;
+        S1 = 1; S0 = 0;
+        #10;
+
+        // Apply test case: S1S0 = 11 -> Y = I3
+        I0 = 0; I1 = 0; I2 = 0; I3 = 1;
+        S1 = 1; S0 = 1;
+        #10;
+
+        // Additional test cases
+        I0 = 1; I1 = 0; I2 = 1; I3 = 0;
+        S1 = 0; S0 = 0;
+        #10;
+
+        I0 = 1; I1 = 1; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 1;
+        #10;
+
+        I0 = 0; I1 = 1; I2 = 1; I3 = 0;
+        S1 = 1; S0 = 0;
+        #10;
+
+        I0 = 0; I1 = 0; I2 = 1; I3 = 1;
+        S1 = 1; S0 = 1;
+        #10;
+
+        // Display final message
+        $display("All test cases completed.");
 
         // Stop simulation
-        #10 $stop;
+        $stop;
+    end
+
+    // Monitor input and output changes
+    initial begin
+        $monitor("Time=%0t | S1=%b S0=%b | I0=%b I1=%b I2=%b I3=%b | Y=%b",
+                 $time, S1, S0, I0, I1, I2, I3, Y);
     end
 
 endmodule
 ```
 # Simulated Output Gate Level Modelling
-______ Here Paste the Simulated output ___________
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/85e39f64-f225-406e-b412-ab9456386258" />
+
 
 4:1 MUX Data flow Modelling
 ```
