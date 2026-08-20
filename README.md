@@ -250,6 +250,8 @@ endmodule
 
 4:1 MUX Behavioral Implementation
 ```
+`timescale 1ns/1ps
+
 module mux4_to_1_behavioral (
     input wire A,
     input wire B,
@@ -259,42 +261,81 @@ module mux4_to_1_behavioral (
     input wire S1,
     output reg Y
 );
+
     always @(*) begin
-        
+        case ({S1, S0})
+            2'b00: Y = A;
+            2'b01: Y = B;
+            2'b10: Y = C;
+            2'b11: Y = D;
+            default: Y = 1'b0;
+        endcase
     end
+
 endmodule
 ```
 #4:1 MUX Behavioral Modelling- Testbench
 ```
-// Testbench Skeleton
 `timescale 1ns/1ps
+
 module tb_mux4_behavioral;
 
-    // Declare testbench signals
     reg I0, I1, I2, I3;
     reg S0, S1;
     wire Y;
 
-    // Instantiate DUT
-    mux4_behavioral uut (
-        .I0(I0), .I1(I1), .I2(I2), .I3(I3),
-        .S0(S0), .S1(S1),
+    // DUT
+    mux4_to_1_behavioral uut (
+        .A(I0),
+        .B(I1),
+        .C(I2),
+        .D(I3),
+        .S0(S0),
+        .S1(S1),
         .Y(Y)
     );
 
     initial begin
-        // Initialize inputs
 
-        // Apply test cases
+        // Test 1: S1S0 = 00, I0 selected
+        I0 = 1; I1 = 0; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 0;
+        #1;
+        $display("S1=%b S0=%b | I0=%b I1=%b I2=%b I3=%b | Y=%b",
+                 S1, S0, I0, I1, I2, I3, Y);
 
-        // Stop simulation
-        #10 $stop;
+        // Test 2: S1S0 = 01, I1 selected
+        I0 = 0; I1 = 1; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 1;
+        #1;
+        $display("S1=%b S0=%b | I0=%b I1=%b I2=%b I3=%b | Y=%b",
+                 S1, S0, I0, I1, I2, I3, Y);
+
+        // Test 3: S1S0 = 10, I2 selected
+        I0 = 0; I1 = 0; I2 = 1; I3 = 0;
+        S1 = 1; S0 = 0;
+        #1;
+        $display("S1=%b S0=%b | I0=%b I1=%b I2=%b I3=%b | Y=%b",
+                 S1, S0, I0, I1, I2, I3, Y);
+
+        // Test 4: S1S0 = 11, I3 selected
+        I0 = 0; I1 = 0; I2 = 0; I3 = 1;
+        S1 = 1; S0 = 1;
+        #1;
+        $display("S1=%b S0=%b | I0=%b I1=%b I2=%b I3=%b | Y=%b",
+                 S1, S0, I0, I1, I2, I3, Y);
+
+        $display("Simulation completed!");
+
+        #10;
+        $finish;
     end
 
 endmodule
 ```
 # Simulated Output Behavioral Modelling
-_______ Here Paste the Simulated output ___________
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d2748e85-5616-4fb5-b0c4-d151ac1d5f4c" />
+
 
 #4:1 MUX Structural Implementation
 ```
