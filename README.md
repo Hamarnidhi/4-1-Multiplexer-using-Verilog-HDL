@@ -145,20 +145,25 @@ endmodule
 
 4:1 MUX Data flow Modelling
 ```
-// Dataflow Modelling - Skeleton
+`timescale 1ns/1ps
+
 module mux4_dataflow (
-    input  wire I0, I1, I2, I3,
-    input  wire S0, S1,
-    output wire Y
+    input I0, I1, I2, I3,
+    input S0, S1,
+    output Y
 );
-    // Write assign statement using operators
+
+    assign Y = (~S1 & ~S0 & I0) |
+               (~S1 &  S0 & I1) |
+               ( S1 & ~S0 & I2) |
+               ( S1 &  S0 & I3);
 
 endmodule
 ```
 4:1 MUX Data flow Modelling- Testbench
 ```
-// Testbench Skeleton
 `timescale 1ns/1ps
+
 module tb_mux4_dataflow;
 
     // Declare testbench signals
@@ -168,15 +173,70 @@ module tb_mux4_dataflow;
 
     // Instantiate DUT
     mux4_dataflow uut (
-        .I0(I0), .I1(I1), .I2(I2), .I3(I3),
-        .S0(S0), .S1(S1),
+        .I0(I0),
+        .I1(I1),
+        .I2(I2),
+        .I3(I3),
+        .S0(S0),
+        .S1(S1),
         .Y(Y)
     );
 
     initial begin
         // Initialize inputs
+        I0 = 0;
+        I1 = 0;
+        I2 = 0;
+        I3 = 0;
+        S0 = 0;
+        S1 = 0;
 
         // Apply test cases
+
+        // S1S0 = 00 -> Y = I0
+        I0 = 1; I1 = 0; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 0;
+        #1;
+
+        // S1S0 = 01 -> Y = I1
+        I0 = 0; I1 = 1; I2 = 0; I3 = 0;
+        S1 = 0; S0 = 1;
+        #1;
+
+        // S1S0 = 10 -> Y = I2
+        I0 = 0; I1 = 0; I2 = 1; I3 = 0;
+        S1 = 1; S0 = 0;
+        #1;
+
+        // S1S0 = 11 -> Y = I3
+        I0 = 0; I1 = 0; I2 = 0; I3 = 1;
+        S1 = 1; S0 = 1;
+        #1;
+
+        // Additional test cases
+
+        // I0 selected
+        I0 = 0; I1 = 1; I2 = 1; I3 = 1;
+        S1 = 0; S0 = 0;
+        #1;
+
+        // I1 selected
+        I0 = 1; I1 = 0; I2 = 1; I3 = 1;
+        S1 = 0; S0 = 1;
+        #1;
+
+        // I2 selected
+        I0 = 1; I1 = 1; I2 = 0; I3 = 1;
+        S1 = 1; S0 = 0;
+        #1;
+
+        // I3 selected
+        I0 = 1; I1 = 1; I2 = 1; I3 = 0;
+        S1 = 1; S0 = 1;
+        #1;
+
+        // Display final values
+        $display("Simulation completed.");
 
         // Stop simulation
         #10 $stop;
@@ -185,7 +245,8 @@ module tb_mux4_dataflow;
 endmodule
 ```
 # Simulated Output Dataflow Modelling
-_______ Here Paste the Simulated output ___________
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/cb0b5c6f-b66d-4374-9a56-c8436c222648" />
+
 
 4:1 MUX Behavioral Implementation
 ```
