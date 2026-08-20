@@ -339,15 +339,22 @@ endmodule
 
 #4:1 MUX Structural Implementation
 ```
+`timescale 1ns/1ps
+
+// 2:1 MUX
 module mux2_to_1 (
     input wire A,
     input wire B,
     input wire S,
     output wire Y
 );
+
     assign Y = S ? B : A;
+
 endmodule
 
+
+// 4:1 MUX using three 2:1 MUXes
 module mux4_to_1_structural (
     input wire A,
     input wire B,
@@ -357,30 +364,123 @@ module mux4_to_1_structural (
     input wire S1,
     output wire Y
 );
+
+    wire Y1;
+    wire Y2;
+
+    // First stage
+    mux2_to_1 MUX1 (
+        .A(A),
+        .B(B),
+        .S(S0),
+        .Y(Y1)
+    );
+
+    mux2_to_1 MUX2 (
+        .A(C),
+        .B(D),
+        .S(S0),
+        .Y(Y2)
+    );
+
+    // Second stage
+    mux2_to_1 MUX3 (
+        .A(Y1),
+        .B(Y2),
+        .S(S1),
+        .Y(Y)
+    );
+
+endmodule
 ```
 # Testbench Implementation
 ```
-`timescale 1ns / 1ps
+`timescale 1ns/1ps
 
 module mux4_to_1_tb;
-    reg A, B, C, D, S0, S1;
-    wire Y_gate, Y_dataflow, Y_behavioral, Y_structural;
 
-    
+    reg A, B, C, D;
+    reg S0, S1;
+
+    wire Y_structural;
+
+    // Instantiate structural 4:1 MUX
+    mux4_to_1_structural uut (
+        .A(A),
+        .B(B),
+        .C(C),
+        .D(D),
+        .S0(S0),
+        .S1(S1),
+        .Y(Y_structural)
+    );
 
     initial begin
-        A = 0; B = 0; C = 0; D = 0; S0 = 0; S1 = 0;
 
-      
-        #10 $stop;
+        // Initialize inputs
+        A = 0;
+        B = 0;
+        C = 0;
+        D = 0;
+        S0 = 0;
+        S1 = 0;
+
+        // Test 1: S1S0 = 00 -> A selected
+        A = 1;
+        B = 0;
+        C = 0;
+        D = 0;
+        S1 = 0;
+        S0 = 0;
+        #10;
+        $display("S1=%b S0=%b | A=%b B=%b C=%b D=%b | Y=%b",
+                 S1, S0, A, B, C, D, Y_structural);
+
+        // Test 2: S1S0 = 01 -> B selected
+        A = 0;
+        B = 1;
+        C = 0;
+        D = 0;
+        S1 = 0;
+        S0 = 1;
+        #10;
+        $display("S1=%b S0=%b | A=%b B=%b C=%b D=%b | Y=%b",
+                 S1, S0, A, B, C, D, Y_structural);
+
+        // Test 3: S1S0 = 10 -> C selected
+        A = 0;
+        B = 0;
+        C = 1;
+        D = 0;
+        S1 = 1;
+        S0 = 0;
+        #10;
+        $display("S1=%b S0=%b | A=%b B=%b C=%b D=%b | Y=%b",
+                 S1, S0, A, B, C, D, Y_structural);
+
+        // Test 4: S1S0 = 11 -> D selected
+        A = 0;
+        B = 0;
+        C = 0;
+        D = 1;
+        S1 = 1;
+        S0 = 1;
+        #10;
+        $display("S1=%b S0=%b | A=%b B=%b C=%b D=%b | Y=%b",
+                 S1, S0, A, B, C, D, Y_structural);
+
+        $display("Simulation completed!");
+
+        #10;
+        $finish;
+
     end
 
-   
-    end
 endmodule
 ```
 # Simulated Output Structural Modelling
-_______ Here Paste the Simulated output ___________
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/88e1cafe-9e12-4d17-ab10-a64164141bb5" />
+
 
 # CONCLUSION
 In this experiment, a 4:1 Multiplexer was successfully designed and simulated using Verilog HDL across four different modeling styles: Gate-Level, Data Flow, Behavioral, and Structural.The simulation results verified the correct functionality of the MUX, with all implementations producing identical outputs for the given input conditions.
